@@ -1,5 +1,16 @@
 #!/usr/bin/python
 
+# LeCroy Scope Parser
+#
+# Reads a LeCroy-Serial Output Trace from a file and converts it to
+# a .csv-File on stdout.
+#
+# Lizensiert als http://creativecommons.org/licenses/by-sa/4.0/
+#
+# TODO: Read a file from stdin or from a given filename
+
+
+
 import array
 from binascii import *
 import struct
@@ -31,46 +42,53 @@ data=myfile.read()
 endOfHead = data.find(magicHead)+ len(magicHead)
 data = data[endOfHead:].strip(' ').strip('\r').strip('\n')
 
+print "Lecroy-Parser;"
+print "Header-Version;1"
+print "Generated With;https://github.com/SmithChart/lecroy-parser;"
+
 hexdata = unhexlify(data)
-print "Bytes gelesen: " + str(len(hexdata))
+#print "Bytes gelesen: " + str(len(hexdata))
 
 hexdata = hexdata[hexdata.find(moreMagic):]
 #print "Magic String: " + repr((hexdata[:50]))
 
 comm_type = unp_word(hexdata, 32)
-print "COMM_TYPE:" + str(comm_type)
+#print "COMM_TYPE:" + str(comm_type)
 
 comm_order = unp_word(hexdata, 34)
-print "COMM_ORDER:" + str(comm_order)
+#print "COMM_ORDER:" + str(comm_order)
 
 WAVE_DESCRIPTOR_len = unp_long(hexdata, 36)
-print "WAVE_DESCRIPTOR length: " + str(WAVE_DESCRIPTOR_len)
+#print "WAVE_DESCRIPTOR length: " + str(WAVE_DESCRIPTOR_len)
 
 USER_TEXT_len = unp_long(hexdata, 40)
-print "USER_TEXT length:" + str(USER_TEXT_len)
+#print "USER_TEXT length:" + str(USER_TEXT_len)
 
 WAVE_ARRAY_1 = unp_long(hexdata, 60)
-print "WAVE_ARRAY_1 (Number of bytes for the waveform): " + str(WAVE_ARRAY_1)
+print "WAVE_ARRAY_1 (Number of bytes for the waveform);" + str(WAVE_ARRAY_1)
 
-print "Instrument name: " + unp_string(hexdata,76)
-print "Trace label: " + unp_string(hexdata,96)
+print "Instrument name;" + unp_string(hexdata,76)
+print "Trace label;" + unp_string(hexdata,96)
 
 HORIZ_INTERVAL = unp_float(hexdata, 176)
-print "HORIZ_INTERVAL:" + str(HORIZ_INTERVAL)
+print "HORIZ_INTERVAL;" + str(HORIZ_INTERVAL)
 
 TIMEBASE = unp_word(hexdata, 324)
-print "TIMEBASE: " + str(TIMEBASE)
+print "TIMEBASE;" + str(TIMEBASE)
 
 VERT_COUPLING = unp_word(hexdata, 326)
-print "VERT_COUPLING: " + str(VERT_COUPLING)
+print "VERT_COUPLING;" + str(VERT_COUPLING)
 
 FIXED_VERT_GAIN = unp_word(hexdata, 332)
-print "FIXED_VERT_GAIN: " + str(FIXED_VERT_GAIN)
+print "FIXED_VERT_GAIN;" + str(FIXED_VERT_GAIN)
 
 
 VERT_GAIN = unp_float(hexdata, 156)
 VERT_OFFSET = unp_float(hexdata, 160)
-print "VERT_GAIN / VERT_OFFSET: " + str(VERT_GAIN) + " / " + str(VERT_OFFSET)
+print "VERT_GAIN;" + str(VERT_GAIN)
+print "VERT_OFFSET;" + str(VERT_OFFSET)
+print "Resulting Gain;" + str(VERT_GAIN/VERT_OFFSET)
+
 
 
 #Start of waveform array
